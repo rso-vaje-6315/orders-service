@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>si.rso.orders</groupId>
+        <artifactId>orders-service</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>services</artifactId>
+
+    <name>services</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>si.rso.orders</groupId>
+            <artifactId>persistence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.orders</groupId>
+            <artifactId>orders-service-lib-v1</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kumuluz.ee</groupId>
+            <artifactId>kumuluzee-cdi-weld</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee</groupId>
+            <artifactId>kumuluzee-jax-rs-jersey</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee.rest</groupId>
+            <artifactId>kumuluzee-rest-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee.rest-client</groupId>
+            <artifactId>kumuluzee-rest-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee</groupId>
+            <artifactId>kumuluzee-json-p-jsonp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee.logs</groupId>
+            <artifactId>kumuluzee-logs-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-jetty94-adapter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.rest</groupId>
+            <artifactId>rest-utils</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

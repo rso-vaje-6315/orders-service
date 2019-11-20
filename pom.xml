@@ -1,0 +1,163 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>si.rso.orders</groupId>
+    <artifactId>orders-service</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>orders-service</name>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <kumuluzee.version>3.5.0</kumuluzee.version>
+        <kumuluzee-logs.version>1.3.1</kumuluzee-logs.version>
+        <kumuluzee-rest.version>1.2.3</kumuluzee-rest.version>
+        <kumuluzee-cors.version>1.0.5</kumuluzee-cors.version>
+        <kumuluzee-health.version>2.0.1</kumuluzee-health.version>
+        <kumuluzee-rest-client.version>1.3.3</kumuluzee-rest-client.version>
+        <kumuluzee-security.version>1.1.0</kumuluzee-security.version>
+        <kumuluzee-swagger.version>1.2.2</kumuluzee-swagger.version>
+        <kumuluzee-openapi.version>1.0.1</kumuluzee-openapi.version>
+        <kumuluzee-fault-tolerance.version>2.0.0</kumuluzee-fault-tolerance.version>
+        <jackson.version>2.9.9</jackson.version>
+        <postgres.version>42.2.7</postgres.version>
+        <keycloak.version>7.0.0</keycloak.version>
+        <rso-rest.version>1.2.0</rso-rest.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>si.rso.orders</groupId>
+                <artifactId>orders-service-lib-v1</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.rso.orders</groupId>
+                <artifactId>persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.rso.orders</groupId>
+                <artifactId>services</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.kumuluz.ee</groupId>
+                <artifactId>kumuluzee-bom</artifactId>
+                <version>${kumuluzee.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.kumuluz.ee.cors</groupId>
+                <artifactId>kumuluzee-cors</artifactId>
+                <version>${kumuluzee-cors.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.health</groupId>
+                <artifactId>kumuluzee-health</artifactId>
+                <version>${kumuluzee-health.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.rest-client</groupId>
+                <artifactId>kumuluzee-rest-client</artifactId>
+                <version>${kumuluzee-rest-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.rest</groupId>
+                <artifactId>kumuluzee-rest-core</artifactId>
+                <version>${kumuluzee-rest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.security</groupId>
+                <artifactId>kumuluzee-security-keycloak</artifactId>
+                <version>${kumuluzee-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.openapi</groupId>
+                <artifactId>kumuluzee-openapi</artifactId>
+                <version>${kumuluzee-openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.openapi</groupId>
+                <artifactId>kumuluzee-openapi-ui</artifactId>
+                <version>${kumuluzee-openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.logs</groupId>
+                <artifactId>kumuluzee-logs-log4j2</artifactId>
+                <version>${kumuluzee-logs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.fault.tolerance</groupId>
+                <artifactId>kumuluzee-fault-tolerance-smallrye</artifactId>
+                <version>${kumuluzee-fault-tolerance.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-jetty94-adapter</artifactId>
+                <version>${keycloak.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgres.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.rso.rest</groupId>
+                <artifactId>rest-utils</artifactId>
+                <version>${rso-rest.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>rso</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+
+        <profile>
+            <id>deploy-lib</id>
+            <modules>
+                <module>lib</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>api</module>
+                <module>lib</module>
+                <module>services</module>
+                <module>persistence</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>rso-store</id>
+            <url>https://nexus.mjamsek.com/repository/rso-store</url>
+        </repository>
+    </distributionManagement>
+
+</project>

@@ -1,0 +1,42 @@
+sudo: required
+
+services:
+  - docker
+
+language: java
+dist: trusty
+
+branches:
+  only:
+    - develop
+
+jdk:
+  - openjdk11
+
+cache:
+  directories:
+    - "$HOME/.m2"
+
+install: echo "Skipping installation"
+
+script:
+  - mvn clean package -DskipTests=true --settings .ci/settings.xml
+  - docker build -t rso6315/orders-service .
+
+after_success:
+  - mvn deploy -DskipTests=true --settings .ci/settings.xml -P !default,deploy-lib
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push rso6315/orders-service
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      - rso-6315:GemkjD1zzD1AAKrXCrn9LUC3
+    on_success: always
+    on_failure: always
+    template:
+      - "`%{result}` build for repo `%{repository_slug}` on branch `%{branch}`. Build (<%{build_url}|#%{build_number}>). Commit (<%{compare_url}|%{commit}>)."
+      - "Execution time: *%{duration}*"
+      - "Message: *%{message}*"
+
