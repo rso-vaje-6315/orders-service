@@ -4,13 +4,14 @@
 
         <jta-data-source>jdbc/mainDB</jta-data-source>
 
-        <class>si.rso.orders.persistence.SampleEntity</class>
+        <class>si.rso.orders.persistence.OrderEntity</class>
+        <class>si.rso.orders.persistence.OrderProductEntity</class>
 
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
             <property name="hibernate.show_sql" value="true"/>
-            <!-- <property name="hibernate.hbm2dll.import_files" value="import.sql"/>-->
+            <property name="hibernate.hbm2dll.import_files" value="import.sql"/>
             <property name="javax.persistence.schema-generation.create-source" value="metadata"/>
             <property name="javax.persistence.schema-generation.drop-source" value="metadata"/>
         </properties>

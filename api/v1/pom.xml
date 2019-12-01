@@ -63,10 +63,6 @@
             <artifactId>kumuluzee-openapi-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.kumuluz.ee.fault.tolerance</groupId>
-            <artifactId>kumuluzee-fault-tolerance-smallrye</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-jetty94-adapter</artifactId>
         </dependency>
