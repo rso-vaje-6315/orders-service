@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/")
 @RequestScoped
@@ -17,6 +18,16 @@ public class OrderEndpoint {
 
     @Inject
     private OrderService orderService;
+
+    @GET
+    @Path("/me")
+    public Response getOrdersByCustomer() {
+        String customerId = "9349cf54-1946-4915-be7e-7decb9090e8e"; // TODO dobi dejanskega prijavljenega userja
+
+        List<Order> orders = orderService.getOrdersByCustomer(customerId);
+
+        return Response.ok(orders).build();
+    }
 
     @GET
     @Path("/{orderId}")

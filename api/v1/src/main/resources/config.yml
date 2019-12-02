@@ -40,4 +40,15 @@ kumuluzee:
         max-size: 20
   security:
     keycloak:
-      json: '{}'
+      json: '{
+               "realm": "rso",
+               "bearer-only": true,
+               "auth-server-url": "https://keycloak.mjamsek.com/auth",
+               "ssl-required": "external",
+               "resource": "orders-service",
+               "confidential-port": 0
+             }'
+      realm: rso
+      auth-server-url: https://keycloak.mjamsek.com/auth
+      client-id: orders-service
+      client-secret: not_set

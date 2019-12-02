@@ -1,6 +1,6 @@
 package si.rso.orders.lib;
 
-public class Order {
+public class Order extends BaseType {
 
     private String customerId;
 
