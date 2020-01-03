@@ -14,4 +14,14 @@ public class OrderMapper {
 
         return order;
     }
+
+    public static OrderEntity toEntity(Order order) {
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setId(order.getId());
+        orderEntity.setTimestamp(order.getTimestamp());
+        orderEntity.setCustomerId(order.getCustomerId());
+        orderEntity.setPrice(order.getPrice());
+
+        return orderEntity;
+    }
 }

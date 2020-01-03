@@ -1,5 +1,9 @@
 package si.rso.orders.api.endpoints;
 
+import com.kumuluz.ee.rest.beans.QueryParameters;
+import si.rso.orders.lib.Sample;
+import si.rso.orders.services.SampleService;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -11,10 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-
-import com.kumuluz.ee.rest.beans.QueryParameters;
-import si.rso.orders.lib.Sample;
-import si.rso.orders.services.SampleService;
 
 @Path("/sample")
 @RequestScoped
@@ -31,6 +31,7 @@ public class SampleEndpoint {
     @GET
     public Response getGreetings() {
         QueryParameters query = QueryParameters.query(uriInfo.getRequestUri().getQuery()).build();
+//        return QueryParameters.query(uriInfo.getRequestUri().getQuery()).defaultOffset(0).defaultLimit(10).build();
         List<Sample> samples = sampleService.getSamples(query);
         long samplesCount = sampleService.getSamplesCount(query);
         return Response.ok(samples).header("X-Total-Count", samplesCount).build();

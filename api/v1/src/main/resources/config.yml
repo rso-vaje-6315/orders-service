@@ -7,6 +7,8 @@ kumuluzee:
   server:
     show-server-info: false
     base-url: http://localhost:8080
+    http:
+      port: 8080
   cors-filter:
     servlet:
       allow-origin: "*"
@@ -52,3 +54,7 @@ kumuluzee:
       auth-server-url: https://keycloak.mjamsek.com/auth
       client-id: orders-service
       client-secret: not_set
+  rest-client:
+    registrations:
+      - class: shopping-cart
+        url: http://localhost:8088/v1

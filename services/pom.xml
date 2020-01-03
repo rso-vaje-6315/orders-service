@@ -58,6 +58,14 @@
             <groupId>si.rso.rest</groupId>
             <artifactId>rest-utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>si.rso.invoice</groupId>
+            <artifactId>invoice-service-lib-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.cart</groupId>
+            <artifactId>shopping-cart-service-lib-v1</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

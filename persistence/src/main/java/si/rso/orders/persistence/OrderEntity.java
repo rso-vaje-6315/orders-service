@@ -16,6 +16,8 @@ public class OrderEntity extends BaseEntity {
 
     private float price;
 
+    private int status;
+
     public String getCustomerId() {
         return customerId;
     }
@@ -30,5 +32,13 @@ public class OrderEntity extends BaseEntity {
 
     public void setPrice(float price) {
         this.price = price;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

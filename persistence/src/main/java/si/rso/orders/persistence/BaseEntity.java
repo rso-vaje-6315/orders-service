@@ -1,6 +1,7 @@
 package si.rso.orders.persistence;
 
 import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -15,8 +16,9 @@ public class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "timestamp")
     protected Date timestamp;
-    
+
     @PrePersist
+    @PreUpdate
     private void onCreate() {
         this.timestamp = new Date();
     }
