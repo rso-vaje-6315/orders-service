@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.representations.AccessToken;
@@ -59,6 +62,8 @@ public class OrderEndpoint {
 
     @GET
     @Path("/me")
+    @Timeout
+    @Retry
     @RolesAllowed({AuthRole.CUSTOMER})
     @Operation(description = "Customer retrieves their orders.",
             summary = "Returns users' orders.", tags = "orders",
@@ -80,6 +85,8 @@ public class OrderEndpoint {
 
     @GET
     @Path("/{orderId}")
+    @Timeout
+    @Retry
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Retrieves order by orderId.",
             summary = "Returns an order.", tags = "orders",
@@ -97,6 +104,8 @@ public class OrderEndpoint {
     }
 
     @GET
+    @Timeout
+    @Retry
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Retrieves orders.",
             summary = "Returns orders.", tags = "orders",
@@ -117,6 +126,8 @@ public class OrderEndpoint {
     }
 
     @PUT
+    @Timeout
+    @Retry
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Updates an order.",
             summary = "Updates an orders.", tags = "orders",
@@ -130,6 +141,9 @@ public class OrderEndpoint {
     }
 
     @POST
+    @Timeout
+    @Retry
+    @Timed(name = "create_order_method")
     @RolesAllowed({AuthRole.CUSTOMER})
     @Operation(description = "Creates new order.",
             summary = "Creates new order.", tags = "orders",
