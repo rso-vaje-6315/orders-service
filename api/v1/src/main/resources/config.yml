@@ -71,10 +71,6 @@ kumuluzee:
                "resource": "orders-service",
                "confidential-port": 0
              }'
-      realm: rso
-      auth-server-url: https://keycloak.mjamsek.com/auth
-      client-id: orders-service
-      client-secret: not_set
   rest-client:
     registrations:
       - class: shopping-cart
