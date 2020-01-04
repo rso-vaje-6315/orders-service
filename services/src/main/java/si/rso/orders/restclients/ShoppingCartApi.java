@@ -9,14 +9,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RegisterRestClient(configKey = "shopping-cart")
-@Path("/shopping-cart")
 @Dependent
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface ShoppingCartApi {
 
     @GET
-    @Path("/me")
-//    List<ShoppingCart> getShoppingCartsForCustomer(@HeaderParam(HttpHeaders.AUTHORIZATION) String authToken);
+    @Path("/shopping-cart/me")
     Response getShoppingCartsForCustomer(@HeaderParam(HttpHeaders.AUTHORIZATION) String authToken);
 }

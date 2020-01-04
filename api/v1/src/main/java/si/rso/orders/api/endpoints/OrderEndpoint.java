@@ -149,7 +149,7 @@ public class OrderEndpoint {
             String customerTokenString = getMyTokenString().orElseThrow();
             Order order = orderService.createOrder(customerTokenString);
 
-            return Response.ok().build();
+            return Response.ok(order).build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
         }

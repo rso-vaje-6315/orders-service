@@ -12,6 +12,7 @@ import grpc.InvoiceServiceGrpc;
 import io.grpc.stub.StreamObserver;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import si.rso.orders.lib.Order;
 import si.rso.orders.mappers.OrderMapper;
@@ -26,7 +27,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,40 +104,26 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order createOrder(String authToken) throws MalformedURLException {
-        /*
-        // TODO url from config server
-        URL url = new URL("http://localhost:8088/v1/");
-        try {
-            ShoppingCartApi shoppingCartApi = RestClientBuilder.newBuilder()
-                    .baseUri(URI.create("http://localhost:8088/v1/")).build(ShoppingCartApi.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
-//        List<ShoppingCart> shoppingCarts = shoppingCartApi.getShoppingCartsForCustomer(authToken);
-        String token = "Bearer " + authToken;
+    
+        ShoppingCartApi shoppingCartApi = RestClientBuilder.newBuilder()
+            .baseUri(URI.create("http://localhost:8088/v1")).build(ShoppingCartApi.class);
+    
         Response response;
         try {
-            response = shoppingCartApi.getShoppingCartsForCustomer(token);
-            System.err.println(response.getStatus());
+            response = shoppingCartApi.getShoppingCartsForCustomer("Bearer " + authToken);
         } catch (WebApplicationException e) {
             System.err.println(e.getMessage());
-            e.printStackTrace();
             response = e.getResponse();
         }
-        String read = response.readEntity(String.class);
-        System.out.println(read);
-        System.out.println("aa");
-//        int size = shoppingCarts.size();
-
-
-//        createInvoice(order);
-//
-//        return order;
-        return null;
-
-         */
+    
+        System.err.println(response.getStatus());
+        if (response.hasEntity()) {
+            String responseBody = response.readEntity(String.class);
+            System.err.println(responseBody);
+        } else {
+            System.err.println("Response has no entity!");
+        }
+        
         return null;
     }
 
