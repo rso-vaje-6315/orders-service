@@ -47,6 +47,11 @@
             <artifactId>kumuluzee-logs-log4j2</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.kumuluz.ee.config</groupId>
+            <artifactId>kumuluzee-config-consul</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
@@ -54,6 +59,7 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-jetty94-adapter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>si.rso.rest</groupId>
             <artifactId>rest-utils</artifactId>
