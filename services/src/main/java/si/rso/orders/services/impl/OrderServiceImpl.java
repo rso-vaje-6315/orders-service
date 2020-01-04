@@ -10,6 +10,8 @@ import com.kumuluz.ee.rest.utils.JPAUtils;
 import grpc.Invoice;
 import grpc.InvoiceServiceGrpc;
 import io.grpc.stub.StreamObserver;
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import si.rso.orders.lib.Order;
 import si.rso.orders.mappers.OrderMapper;
@@ -55,6 +57,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @CircuitBreaker
+    @Timeout
     @Override
     public List<Order> getOrdersByCustomer(String customerId) {
         TypedQuery<OrderEntity> query = em.createNamedQuery(OrderEntity.FIND_BY_CUSTOMER, OrderEntity.class);
@@ -65,12 +69,16 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @CircuitBreaker
+    @Timeout
     @Override
     public Order getOrder(String orderId) {
         OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
         return OrderMapper.fromEntity(orderEntity);
     }
 
+    @CircuitBreaker
+    @Timeout
     @Override
     public List<Order> getOrders(QueryParameters queryParameters) {
         return JPAUtils.queryEntities(em, OrderEntity.class, queryParameters).stream()
@@ -78,6 +86,8 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @CircuitBreaker
+    @Timeout
     @Override
     @Transactional
     public Order updateOrder(Order order) {
@@ -85,6 +95,8 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
 
+    @CircuitBreaker
+    @Timeout
     @Override
     @Transactional
     public Order createOrder(String authToken) throws MalformedURLException {

@@ -1,13 +1,13 @@
 package si.rso.orders.api.endpoints;
 
+import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.eclipse.microprofile.faulttolerance.Retry;
-import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Log
 @Path("/orders")
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
@@ -62,8 +63,6 @@ public class OrderEndpoint {
 
     @GET
     @Path("/me")
-    @Timeout
-    @Retry
     @RolesAllowed({AuthRole.CUSTOMER})
     @Operation(description = "Customer retrieves their orders.",
             summary = "Returns users' orders.", tags = "orders",
@@ -85,8 +84,6 @@ public class OrderEndpoint {
 
     @GET
     @Path("/{orderId}")
-    @Timeout
-    @Retry
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Retrieves order by orderId.",
             summary = "Returns an order.", tags = "orders",
@@ -104,8 +101,6 @@ public class OrderEndpoint {
     }
 
     @GET
-    @Timeout
-    @Retry
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Retrieves orders.",
             summary = "Returns orders.", tags = "orders",
@@ -126,8 +121,7 @@ public class OrderEndpoint {
     }
 
     @PUT
-    @Timeout
-    @Retry
+    @Counted(name = "update-order-count")
     @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
     @Operation(description = "Updates an order.",
             summary = "Updates an orders.", tags = "orders",
@@ -141,9 +135,8 @@ public class OrderEndpoint {
     }
 
     @POST
-    @Timeout
-    @Retry
-    @Timed(name = "create_order_method")
+    @Timed(name = "create-order-time")
+    @Counted(name = "create-order-count")
     @RolesAllowed({AuthRole.CUSTOMER})
     @Operation(description = "Creates new order.",
             summary = "Creates new order.", tags = "orders",

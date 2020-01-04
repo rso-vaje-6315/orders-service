@@ -19,9 +19,26 @@ kumuluzee:
     ui:
       enabled: true
   logs:
-    loggers:
-      - name: ''
-        level: INFO
+    config-file: '<?xml version="1.0" encoding="UTF-8"?>
+      <Configuration name="orders-service">
+          <Appenders>
+              <Console name="console" target="SYSTEM_OUT">
+                  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+              </Console>
+              <Socket name="logstash" host="2034b16a-d2cd-4921-87d9-b890b8a2b74f-ls.logit.io" port="17244" protocol="tcp">
+                  <JSONLayout complete="false" compact="true" eventEol="true" charset="UTF-8" properties="true"/>
+              </Socket>
+          </Appenders>
+          <Loggers>
+              <Root level="all">
+                  <AppenderRef ref="console" level="info"/>
+                  <AppenderRef ref="logstash" level="trace"/>
+              </Root>
+          </Loggers>
+      </Configuration>'
+  config:
+    consul:
+      agent: http://localhost:8500
   health:
     servlet:
       mapping: /health/
@@ -40,6 +57,10 @@ kumuluzee:
       password: not_set
       pool:
         max-size: 20
+  metrics:
+    web-instrumentation:
+      - name: customers-endpoint
+        url-pattern: /v1/orders/*
   security:
     keycloak:
       json: '{
