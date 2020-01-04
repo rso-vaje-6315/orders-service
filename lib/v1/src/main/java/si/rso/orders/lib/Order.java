@@ -4,9 +4,13 @@ public class Order extends BaseType {
 
     private String customerId;
 
-    private float price;
+    private double price;
 
     private int status;
+    
+    private String addressId;
+    
+    private OrderAddress address;
 
     public String getCustomerId() {
         return customerId;
@@ -16,11 +20,11 @@ public class Order extends BaseType {
         this.customerId = customerId;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -30,5 +34,21 @@ public class Order extends BaseType {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+    
+    public OrderAddress getAddress() {
+        return address;
+    }
+    
+    public void setAddress(OrderAddress address) {
+        this.address = address;
+    }
+    
+    public String getAddressId() {
+        return addressId;
+    }
+    
+    public void setAddressId(String addressId) {
+        this.addressId = addressId;
     }
 }

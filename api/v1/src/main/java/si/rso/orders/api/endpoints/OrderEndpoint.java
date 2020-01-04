@@ -144,12 +144,13 @@ public class OrderEndpoint {
                     @ApiResponse(responseCode = "200", description = "Creates new order..",
                             content = @Content(schema = @Schema(implementation = Order.class)))
             })
-    public Response createOrder() {
+    public Response createOrder(Order order) {
         try {
             String customerTokenString = getMyTokenString().orElseThrow();
-            Order order = orderService.createOrder(customerTokenString);
+            KeycloakSecurityContext context = getKeycloakSecurityContext().orElseThrow();
+            Order createdOrder = orderService.createOrder(order, customerTokenString, context.getToken().getSubject());
 
-            return Response.ok(order).build();
+            return Response.ok(createdOrder).build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
         }

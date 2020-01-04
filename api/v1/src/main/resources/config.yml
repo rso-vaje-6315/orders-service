@@ -71,11 +71,14 @@ kumuluzee:
                "resource": "orders-service",
                "confidential-port": 0
              }'
-  rest-client:
-    registrations:
-      - class: shopping-cart
-        url: http://localhost:8088/v1
-      - class: products
-        url: http://localhost:8083/v1
-
+  grpc:
+    clients:
+      - name: customers-client
+        port: 8444
+        address: localhost
+      - name: invoice-client
+        port: 8443
+        address: localhost
 service-config:
+  products-url: http://localhost:8050
+  shopping-cart-url: http://localhost:8088/v1

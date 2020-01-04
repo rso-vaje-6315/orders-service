@@ -155,6 +155,11 @@
                 <version>${rso-snapshots}</version>
             </dependency>
             <dependency>
+                <groupId>si.rso.customers</groupId>
+                <artifactId>customers-service-lib-v1</artifactId>
+                <version>${rso-snapshots}</version>
+            </dependency>
+            <dependency>
                 <groupId>si.rso.products</groupId>
                 <artifactId>products-service-lib-v1</artifactId>
                 <version>${rso-snapshots}</version>
