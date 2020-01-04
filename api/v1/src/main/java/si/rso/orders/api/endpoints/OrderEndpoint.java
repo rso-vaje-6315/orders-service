@@ -146,8 +146,8 @@ public class OrderEndpoint {
             })
     public Response createOrder() {
         try {
-            String customerTokenString = getMyTokenString().orElseThrow();
-            Order order = orderService.createOrder(customerTokenString);
+//            String customerTokenString = getMyTokenString().orElseThrow();
+            Order order = orderService.createOrder("customerTokenString");
 
             return Response.ok(order).build();
         } catch (Exception e) {

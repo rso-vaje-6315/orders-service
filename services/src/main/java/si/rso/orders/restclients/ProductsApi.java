@@ -9,11 +9,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@RegisterRestClient(configKey = "shopping-cart")
+@RegisterRestClient(configKey = "products")
 @Dependent
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface ShoppingCartApi {
+public interface ProductsApi {
 
     @GET
     @Path("/shopping-cart/me")

@@ -63,6 +63,10 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-jetty94-adapter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.aexp.nodes.graphql</groupId>
+            <artifactId>nodes</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>si.rso.rest</groupId>
@@ -75,6 +79,10 @@
         <dependency>
             <groupId>si.rso.cart</groupId>
             <artifactId>shopping-cart-service-lib-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.products</groupId>
+            <artifactId>products-service-lib-v1</artifactId>
         </dependency>
     </dependencies>
 
