@@ -75,6 +75,7 @@ kumuluzee:
     registrations:
       - class: shopping-cart
         url: http://localhost:8088/v1
+      - class: products
+        url: http://localhost:8083/v1
 
 service-config:
-  products-url: http://localhost:8083/v1
