@@ -17,6 +17,7 @@ import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import si.rso.cart.lib.ShoppingCart;
 import si.rso.orders.lib.Order;
 import si.rso.orders.lib.annotations.CreateGrpcClient;
+import si.rso.orders.lib.enums.OrderStatus;
 import si.rso.orders.mappers.OrderMapper;
 import si.rso.orders.persistence.OrderEntity;
 import si.rso.orders.persistence.OrderProductEntity;
@@ -117,6 +118,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setCustomerId(customerId);
         orderEntity.setProducts(new ArrayList<>());
+        orderEntity.setStatus(OrderStatus.CREATED);
     
         em.persist(orderEntity);
         
@@ -124,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
         
         em.flush();
     
-        this.handleCustomerData(orderEntity, customerId, order.getAddressId());
+        this.handleCustomerData(orderEntity.getId(), customerId, order.getAddressId());
         
         return OrderMapper.fromEntity(orderEntity);
     }
@@ -199,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
     }
     
-    private void handleCustomerData(OrderEntity orderEntity, String customerId, String addressId) {
+    private void handleCustomerData(String orderId, String customerId, String addressId) {
         var stub = CustomersServiceGrpc.newStub(grpcCustomersClient.getChannel());
     
         var req = Customers.CustomerRequest.newBuilder()
@@ -211,6 +213,9 @@ public class OrderServiceImpl implements OrderService {
             @Override
             public void onNext(Customers.CustomerResponse customer) {
                 var addr = customer.getAddress();
+    
+                em.getTransaction().begin();
+                OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
                 
                 orderEntity.setCustomerName(addr.getFirstName() + " " + addr.getLastName());
                 orderEntity.setCustomerStreet(addr.getStreet() + " " + addr.getStreetNumber());
@@ -218,10 +223,9 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.setCustomerCountry(addr.getCountry());
                 orderEntity.setCustomerEmail(addr.getEmail());
                 orderEntity.setCustomerPhone(addr.getPhoneNumber());
-            
-                em.getTransaction().begin();
-                em.flush();
+                
                 em.getTransaction().commit();
+                // em.flush();
             }
         
             @Override
