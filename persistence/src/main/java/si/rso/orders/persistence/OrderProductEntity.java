@@ -12,14 +12,11 @@ public class OrderProductEntity extends BaseEntity {
 
     public static final String FIND_BY_ORDER_ID = "OrderEntity.findByOrderId";
 
-    @Column
+    @Column(name = "product_code")
     private String code;
-    
-    @Column
+
+    @Column(name = "product_name")
     private String name;
-    
-    @Column(name = "total_price")
-    private double totalPrice;
     
     @Column(name = "product_id")
     private String productId;
@@ -48,14 +45,6 @@ public class OrderProductEntity extends BaseEntity {
     
     public void setName(String name) {
         this.name = name;
-    }
-    
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-    
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
     }
     
     public String getProductId() {

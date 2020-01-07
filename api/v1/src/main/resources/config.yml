@@ -39,6 +39,10 @@ kumuluzee:
   config:
     consul:
       agent: http://localhost:8500
+  discovery:
+    cluster: cluster-id
+    consul:
+      agent: http://localhost:8500
   health:
     servlet:
       mapping: /health/

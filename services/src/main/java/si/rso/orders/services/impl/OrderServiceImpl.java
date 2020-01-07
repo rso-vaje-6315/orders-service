@@ -1,5 +1,6 @@
 package si.rso.orders.services.impl;
 
+import com.kumuluz.ee.discovery.annotations.DiscoverService;
 import com.kumuluz.ee.grpc.client.GrpcClient;
 import com.kumuluz.ee.logs.LogManager;
 import com.kumuluz.ee.logs.Logger;
@@ -44,6 +45,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -56,18 +58,26 @@ public class OrderServiceImpl implements OrderService {
     
     /*@Inject
     private ServiceConfig serviceConfig;*/
-    
+
     @Inject
     @CreateGrpcClient(clientName = "customers-client")
     private GrpcClient grpcCustomersClient;
-    
+
     @Inject
     @CreateGrpcClient(clientName = "invoice-client")
     private GrpcClient grpcInvoiceClient;
-    
+
+    @Inject
+    @DiscoverService("products-service")
+    private Optional<String> productsBaseUrl;
+
+    @Inject
+    @DiscoverService("shopping-cart-service")
+    private Optional<String> shoppingCartBaseUrl;
+
     @Inject
     private Validator validator;
-    
+
     @CircuitBreaker
     @Timeout
     @Override
@@ -141,13 +151,16 @@ public class OrderServiceImpl implements OrderService {
             String idList = cartItems.stream().map(ShoppingCart::getProductId).collect(Collectors.joining(","));
             System.err.println(idList);
             // retrieve product data
+            if (productsBaseUrl.isEmpty()) {
+                throw new RestException("Cannot find the url for the products-service");
+            }
             ProductsApi productsApi = RestClientBuilder.newBuilder()
-                .baseUri(URI.create("http://localhost:8050"))
-                .build(ProductsApi.class);
+                    .baseUri(URI.create(productsBaseUrl.get()))
+                    .build(ProductsApi.class);
             JsonObject productsResponse = productsApi.productGraphql("{allProducts(filters: {fields: [{op: IN,field: \"id\",value:\"[" + idList + "]\"}]}){id,code,name,price}}");
             List<Product> products = mapJsonResponseToProduct(productsResponse);
             Map<String, Product> productLookup = products.stream().collect(Collectors.toMap(Product::getId, product -> product));
-    
+
             // map products to order items
             cartItems.stream().map(item -> {
                 OrderProductEntity productEntity = new OrderProductEntity();
@@ -242,20 +255,23 @@ public class OrderServiceImpl implements OrderService {
     }
     
     private ShoppingCartApi buildShoppingCartApi() {
+        if (shoppingCartBaseUrl.isEmpty()) {
+            throw new RestException("Cannot find the url for the products-service");
+        }
         return RestClientBuilder.newBuilder()
-            .register(new ResponseExceptionMapper<NotFoundException>() {
-                
-                @Override
-                public NotFoundException toThrowable(Response response) {
-                    return new NotFoundException("Shopping cart for given customer doesn't exist!");
-                }
-                
-                @Override
-                public boolean handles(int status, MultivaluedMap<String, Object> headers) {
-                    return status == 404;
-                }
-            })
-            .baseUri(URI.create("http://localhost:8088/v1")).build(ShoppingCartApi.class);
+                .register(new ResponseExceptionMapper<NotFoundException>() {
+
+                    @Override
+                    public NotFoundException toThrowable(Response response) {
+                        return new NotFoundException("Shopping cart for given customer doesn't exist!");
+                    }
+
+                    @Override
+                    public boolean handles(int status, MultivaluedMap<String, Object> headers) {
+                        return status == 404;
+                    }
+                })
+                .baseUri(URI.create(shoppingCartBaseUrl.get())).build(ShoppingCartApi.class);
     }
     
     private void createInvoice(Order order) {

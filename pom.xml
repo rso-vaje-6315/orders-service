@@ -27,6 +27,7 @@
         <kumuluzee-fault-tolerance.version>2.0.1</kumuluzee-fault-tolerance.version>
         <kumuluzee-metrics.version>2.0.1</kumuluzee-metrics.version>
         <kumuluzee-config-consul.version>1.2.0</kumuluzee-config-consul.version>
+        <kumuluzee-discovery-consul.version>1.1.1</kumuluzee-discovery-consul.version>
 
         <jackson.version>2.9.10.1</jackson.version>
         <postgres.version>42.2.7</postgres.version>
@@ -121,6 +122,11 @@
                 <groupId>com.kumuluz.ee.config</groupId>
                 <artifactId>kumuluzee-config-consul</artifactId>
                 <version>${kumuluzee-config-consul.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.discovery</groupId>
+                <artifactId>kumuluzee-discovery-consul</artifactId>
+                <version>${kumuluzee-discovery-consul.version}</version>
             </dependency>
 
             <dependency>
