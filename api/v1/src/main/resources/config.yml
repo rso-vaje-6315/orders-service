@@ -84,5 +84,4 @@ kumuluzee:
         port: 8443
         address: localhost
 service-config:
-  products-url: http://localhost:8050
-  shopping-cart-url: http://localhost:8088/v1
+  maintenance: false

@@ -8,15 +8,15 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 @ConfigBundle(value = "service-config", watch = true)
 public class ServiceConfig {
-    
-    @ConfigValue("products-url")
-    private String productApiUrl;
-    
-    public String getProductApiUrl() {
-        return productApiUrl;
+
+    @ConfigValue("maintenance")
+    private boolean maintenance;
+
+    public boolean isMaintenance() {
+        return maintenance;
     }
-    
-    public void setProductApiUrl(String productApiUrl) {
-        this.productApiUrl = productApiUrl;
+
+    public void setMaintenance(boolean maintenance) {
+        this.maintenance = maintenance;
     }
 }
