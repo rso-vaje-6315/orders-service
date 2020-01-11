@@ -1,6 +1,8 @@
 package si.rso.orders.services.impl;
 
 import com.kumuluz.ee.discovery.annotations.DiscoverService;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
 import com.kumuluz.ee.grpc.client.GrpcClient;
 import com.kumuluz.ee.logs.LogManager;
 import com.kumuluz.ee.logs.Logger;
@@ -58,11 +60,11 @@ public class OrderServiceImpl implements OrderService {
     
     /*@Inject
     private ServiceConfig serviceConfig;*/
-
+    
     @Inject
     @CreateGrpcClient(clientName = "customers-client")
     private GrpcClient grpcCustomersClient;
-
+    
     @Inject
     @CreateGrpcClient(clientName = "invoice-client")
     private GrpcClient grpcInvoiceClient;
@@ -77,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Inject
     private Validator validator;
-
+    
     @CircuitBreaker
     @Timeout
     @Override
@@ -128,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setCustomerId(customerId);
         orderEntity.setProducts(new ArrayList<>());
-        orderEntity.setStatus(OrderStatus.CREATED);
+        orderEntity.setStatus(OrderStatus.PLACED);
     
         em.persist(orderEntity);
         
@@ -139,6 +141,61 @@ public class OrderServiceImpl implements OrderService {
         this.handleCustomerData(orderEntity.getId(), customerId, order.getAddressId());
         
         return OrderMapper.fromEntity(orderEntity);
+    }
+    
+    @Transactional
+    @Override
+    public void fulfillOrder(String orderId) {
+        OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
+        if (orderEntity == null) {
+            throw new NotFoundException(OrderEntity.class, orderId);
+        }
+    
+        var invoiceStub = InvoiceServiceGrpc.newStub(grpcInvoiceClient.getChannel());
+        
+        var customerRequestBuilder = Invoice.Customer.newBuilder()
+            .setCountry(orderEntity.getCustomerCountry())
+            .setEmail(orderEntity.getCustomerEmail())
+            .setPhone(orderEntity.getCustomerPhone())
+            .setStreet(orderEntity.getCustomerStreet())
+            .setPost(orderEntity.getCustomerPost())
+            .setName(orderEntity.getCustomerName())
+            .setId(orderEntity.getCustomerId());
+        
+        var invoiceRequestBuilder = Invoice.InvoiceRequest.newBuilder()
+            .setOrderId(orderId)
+            .setCustomer(customerRequestBuilder);
+        orderEntity.getProducts().forEach(product -> {
+            var singleItemBuilder = Invoice.OrderItem.newBuilder();
+            singleItemBuilder.setCode(product.getCode());
+            singleItemBuilder.setName(product.getName());
+            singleItemBuilder.setPrice(product.getPricePerItem());
+            singleItemBuilder.setQuantity(product.getQuantity());
+            invoiceRequestBuilder.addItems(singleItemBuilder.build());
+        });
+        
+        invoiceStub.createInvoice(invoiceRequestBuilder.build(), new StreamObserver<Invoice.InvoiceResponse>() {
+            @Override
+            public void onNext(Invoice.InvoiceResponse value) {
+                em.getTransaction().begin();
+                OrderEntity fulfilledOrder = em.find(OrderEntity.class, orderId);
+                fulfilledOrder.setStatus(OrderStatus.FULFILLED);
+                em.getTransaction().commit();
+                em.flush();
+            }
+    
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+    
+            @Override
+            public void onCompleted() {
+        
+            }
+        });
+        
+        
     }
     
     private void handleOrderItems(OrderEntity orderEntity, String customerId, String authToken) {

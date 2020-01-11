@@ -8,7 +8,7 @@ kumuluzee:
     show-server-info: false
     base-url: http://localhost:8080
     http:
-      port: 8080
+      port: 8081
   cors-filter:
     servlet:
       allow-origin: "*"
@@ -57,8 +57,8 @@ kumuluzee:
   datasources:
     - jndi-name: jdbc/mainDB
       connection-url: jdbc:postgresql://localhost:5432/orders-service
-      username: not_set
-      password: not_set
+      username: postgres
+      password: postgres
       pool:
         max-size: 20
   metrics:

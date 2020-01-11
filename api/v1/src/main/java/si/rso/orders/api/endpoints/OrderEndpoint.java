@@ -155,4 +155,11 @@ public class OrderEndpoint {
             return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
         }
     }
+    
+    @POST
+    @Path("/{id}/fulfill")
+    public Response fulfillOrder(@PathParam("id") String orderId) {
+        orderService.fulfillOrder(orderId);
+        return Response.ok().build();
+    }
 }

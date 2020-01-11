@@ -17,4 +17,6 @@ public interface OrderService {
     Order updateOrder(Order order);
 
     Order createOrder(Order order, String authToken, String customerId) throws MalformedURLException;
+    
+    void fulfillOrder(String orderId);
 }

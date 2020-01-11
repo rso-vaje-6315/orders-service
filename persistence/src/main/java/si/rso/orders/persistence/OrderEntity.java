@@ -11,25 +11,25 @@ import java.util.List;
     @NamedQuery(name = OrderEntity.FIND_BY_CUSTOMER, query = "SELECT o FROM OrderEntity o WHERE o.customerId = :customerId")
 })
 public class OrderEntity extends BaseEntity {
-
+    
     public static final String FIND_BY_CUSTOMER = "OrderEntity.findByCustomer";
-
+    
     @Column(name = "customer_id")
     private String customerId;
-
+    
     @Column(name = "total_price")
     private double totalPrice;
 
     @Column(name = "order_status")
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-
+    
     @Column(name = "customer_name")
     private String customerName;
-
+    
     @Column(name = "customer_street")
     private String customerStreet;
-
+    
     @Column(name = "customer_post")
     private String customerPost;
     
@@ -42,7 +42,7 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "customer_email")
     private String customerEmail;
     
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "order")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "order", fetch = FetchType.EAGER)
     private List<OrderProductEntity> products;
     
     public String getCustomerId() {
