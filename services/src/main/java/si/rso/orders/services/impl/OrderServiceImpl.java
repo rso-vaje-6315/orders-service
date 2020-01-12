@@ -1,8 +1,6 @@
 package si.rso.orders.services.impl;
 
 import com.kumuluz.ee.discovery.annotations.DiscoverService;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Message;
 import com.kumuluz.ee.grpc.client.GrpcClient;
 import com.kumuluz.ee.logs.LogManager;
 import com.kumuluz.ee.logs.Logger;
@@ -57,9 +55,6 @@ public class OrderServiceImpl implements OrderService {
     
     @PersistenceContext(unitName = "main-jpa-unit")
     private EntityManager em;
-    
-    /*@Inject
-    private ServiceConfig serviceConfig;*/
     
     @Inject
     @CreateGrpcClient(clientName = "customers-client")
