@@ -2,21 +2,15 @@ package si.rso.orders.lib;
 
 public class OrderProduct extends BaseType {
 
-    private String orderId;
-
+    private String code;
+    
+    private String name;
+    
     private String productId;
 
     private int quantity;
 
-    private float pricePerItem;
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
+    private double pricePerItem;
 
     public String getProductId() {
         return productId;
@@ -34,11 +28,27 @@ public class OrderProduct extends BaseType {
         this.quantity = quantity;
     }
 
-    public float getPricePerItem() {
+    public double getPricePerItem() {
         return pricePerItem;
     }
 
-    public void setPricePerItem(float pricePerItem) {
+    public void setPricePerItem(double pricePerItem) {
         this.pricePerItem = pricePerItem;
+    }
+    
+    public String getCode() {
+        return code;
+    }
+    
+    public void setCode(String code) {
+        this.code = code;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 }

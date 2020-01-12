@@ -1,16 +1,22 @@
 package si.rso.orders.lib;
 
+import si.rso.orders.lib.enums.OrderStatus;
+
+import java.util.List;
+
 public class Order extends BaseType {
 
     private String customerId;
 
     private double price;
 
-    private int status;
+    private OrderStatus status;
     
     private String addressId;
     
     private OrderAddress address;
+    
+    private List<OrderProduct> products;
 
     public String getCustomerId() {
         return customerId;
@@ -28,11 +34,11 @@ public class Order extends BaseType {
         this.price = price;
     }
 
-    public int getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
     
@@ -50,5 +56,13 @@ public class Order extends BaseType {
     
     public void setAddressId(String addressId) {
         this.addressId = addressId;
+    }
+    
+    public List<OrderProduct> getProducts() {
+        return products;
+    }
+    
+    public void setProducts(List<OrderProduct> products) {
+        this.products = products;
     }
 }
