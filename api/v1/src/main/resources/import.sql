@@ -1,5 +1,5 @@
-INSERT INTO orders(id, timestamp, customer_id, total_price, order_status) VALUES ('520cb7af-b986-4415-ba90-ba3c1a589a40', NOW(), '9349cf54-1946-4915-be7e-7decb9090e8e', 9.2, 'PLACED');
-INSERT INTO orders(id, timestamp, customer_id, total_price, order_status) VALUES ('71f36a65-604d-49df-ab44-1ae710f943ed', NOW(), 'f1d93df1-eb38-4249-9818-cc5b76b67eaa', 5.16, 'FULFILLED');
+INSERT INTO orders(id, timestamp, customer_id, total_price, order_status) VALUES ('520cb7af-b986-4415-ba90-ba3c1a589a40', NOW(), '9349cf54-1946-4915-be7e-7decb9090e8e', 12.52, 'PLACED');
+INSERT INTO orders(id, timestamp, customer_id, total_price, order_status) VALUES ('71f36a65-604d-49df-ab44-1ae710f943ed', NOW(), 'f1d93df1-eb38-4249-9818-cc5b76b67eaa', 0.89, 'FULFILLED');
 
 INSERT INTO order_products(id, timestamp, order_id, product_id, quantity, price_per_item, product_code, product_name) VALUES ('b70bea9c-8d55-4fb4-86aa-6c72b04a4fb5', NOW(), '520cb7af-b986-4415-ba90-ba3c1a589a40', 'fbace5c1-653c-42c0-aa02-78cc4ea4fac1', 5, 1.84, '1234', 'produkt1');
 INSERT INTO order_products(id, timestamp, order_id, product_id, quantity, price_per_item, product_code, product_name) VALUES ('06852980-51d1-4ed2-bbb5-d5c866514d32', NOW(), '520cb7af-b986-4415-ba90-ba3c1a589a40', '66100dac-ff08-4ac2-9c1a-fa5120ff4838', 1, 1.98, '1234', 'produkt2');
