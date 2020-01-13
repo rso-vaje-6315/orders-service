@@ -63,15 +63,15 @@ public class OrderServiceImpl implements OrderService {
     @Inject
     @CreateGrpcClient(clientName = "invoice-client")
     private GrpcClient grpcInvoiceClient;
-
+    
     @Inject
     @DiscoverService("products-service")
     private Optional<String> productsBaseUrl;
-
+    
     @Inject
     @DiscoverService("shopping-cart-service")
     private Optional<String> shoppingCartBaseUrl;
-
+    
     @Inject
     private Validator validator;
     
@@ -107,7 +107,6 @@ public class OrderServiceImpl implements OrderService {
     @CircuitBreaker
     @Timeout
     @Override
-    @Transactional
     public Order updateOrder(Order order) {
         // TODO
         return null;
@@ -116,9 +115,8 @@ public class OrderServiceImpl implements OrderService {
     // @CircuitBreaker
     // @Timeout
     @Override
-    @Transactional
     public Order createOrder(Order order, String authToken, String customerId) {
-    
+        
         validator.assertNotNull(order.getAddressId());
         
         // Initial create for order
@@ -126,18 +124,30 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setCustomerId(customerId);
         orderEntity.setProducts(new ArrayList<>());
         orderEntity.setStatus(OrderStatus.PLACED);
-    
-        em.persist(orderEntity);
         
-        this.handleOrderItems(orderEntity, customerId, authToken);
+        try {
+            em.getTransaction().begin();
+            
+            em.persist(orderEntity);
+            
+            em.getTransaction().commit();
+            
+            em.getTransaction().begin();
+            this.handleOrderItems(orderEntity, authToken);
+            em.merge(orderEntity);
+            em.getTransaction().commit();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            em.getTransaction().rollback();
+        }
         
-        em.flush();
-    
         this.handleCustomerData(orderEntity.getId(), customerId, order.getAddressId());
         
         return OrderMapper.fromEntity(orderEntity);
     }
     
+    // TODO: remove annotation and define own transaction start
     @Transactional
     @Override
     public void fulfillOrder(String orderId) {
@@ -145,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
         if (orderEntity == null) {
             throw new NotFoundException(OrderEntity.class, orderId);
         }
-    
+        
         var invoiceStub = InvoiceServiceGrpc.newStub(grpcInvoiceClient.getChannel());
         
         var customerRequestBuilder = Invoice.Customer.newBuilder()
@@ -176,24 +186,24 @@ public class OrderServiceImpl implements OrderService {
                 OrderEntity fulfilledOrder = em.find(OrderEntity.class, orderId);
                 fulfilledOrder.setStatus(OrderStatus.FULFILLED);
                 em.getTransaction().commit();
-                em.flush();
+                // em.flush();
             }
-    
+            
             @Override
             public void onError(Throwable t) {
                 t.printStackTrace();
             }
-    
+            
             @Override
             public void onCompleted() {
-        
+            
             }
         });
         
         
     }
     
-    private void handleOrderItems(OrderEntity orderEntity, String customerId, String authToken) {
+    private void handleOrderItems(OrderEntity orderEntity, String authToken) {
         try {
             // retrieve shopping cart for user
             ShoppingCartApi shoppingCartApi = buildShoppingCartApi();
@@ -201,20 +211,20 @@ public class OrderServiceImpl implements OrderService {
             List<ShoppingCart> cartItems = mapJsonResponseToCart(shoppingCartResponse);
             // Build id list to retrieve
             String idList = cartItems.stream().map(ShoppingCart::getProductId).collect(Collectors.joining(","));
-            System.err.println(idList);
             // retrieve product data
             if (productsBaseUrl.isEmpty()) {
                 throw new RestException("Cannot find the url for the products-service");
             }
             ProductsApi productsApi = RestClientBuilder.newBuilder()
-                    .baseUri(URI.create(productsBaseUrl.get()))
-                    .build(ProductsApi.class);
-            JsonObject productsResponse = productsApi.productGraphql("{allProducts(filters: {fields: [{op: IN,field: \"id\",value:\"[" + idList + "]\"}]}){id,code,name,price}}");
-            List<Product> products = mapJsonResponseToProduct(productsResponse);
+                .baseUri(URI.create(productsBaseUrl.get()))
+                .build(ProductsApi.class);
+            String filterQuery = "id:IN:[" + idList + "]";
+            JsonArray productsArray = productsApi.getProducts(filterQuery);
+            List<Product> products = mapJsonResponseToProduct(productsArray);
             Map<String, Product> productLookup = products.stream().collect(Collectors.toMap(Product::getId, product -> product));
-
+            
             // map products to order items
-            cartItems.stream().map(item -> {
+            List<OrderProductEntity> productEntities = cartItems.stream().map(item -> {
                 OrderProductEntity productEntity = new OrderProductEntity();
                 productEntity.setQuantity(item.getQuantity());
                 productEntity.setProductId(item.getProductId());
@@ -226,15 +236,22 @@ public class OrderServiceImpl implements OrderService {
                 productEntity.setPricePerItem(productDetails.getPrice());
                 
                 return productEntity;
-            }).forEach(productEntity -> orderEntity.getProducts().add(productEntity));
-            
-            em.flush();
+            }).collect(Collectors.toList());
     
+            productEntities.forEach(productEntity -> {
+                orderEntity.getProducts().add(productEntity);
+                productEntity.setOrder(orderEntity);
+            });
+            
         } catch (NotFoundException e) {
+            e.printStackTrace();
             throw new RestException("Error creating order! Cart not found");
         } catch (WebApplicationException e) {
             e.printStackTrace();
             throw new RestException("Unknown error when retrieving shopping cart!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RestException("Unknown error!");
         }
     }
     
@@ -250,35 +267,32 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
     }
     
-    private List<Product> mapJsonResponseToProduct(JsonObject jsonObject) {
-        return jsonObject.getJsonObject("data")
-            .getJsonArray("allProducts")
-            .stream().map(jsonValue -> {
-            JsonObject node = jsonValue.asJsonObject();
-        
-            Product product = new Product();
-            product.setId(node.getString("id"));
-            product.setCode(node.getString("code"));
-            product.setName(node.getString("name"));
-            product.setPrice((float) node.getJsonNumber("price").doubleValue());
+    private List<Product> mapJsonResponseToProduct(JsonArray jsonArray) {
+        return jsonArray.stream().map(jsonValue -> {
+            JsonObject arrayNode = jsonValue.asJsonObject();
             
+            Product product = new Product();
+            product.setId(arrayNode.getString("id"));
+            product.setCode(arrayNode.getString("code"));
+            product.setName(arrayNode.getString("name"));
+            product.setPrice((float) arrayNode.getJsonNumber("price").doubleValue());
             return product;
         }).collect(Collectors.toList());
     }
     
     private void handleCustomerData(String orderId, String customerId, String addressId) {
         var stub = CustomersServiceGrpc.newStub(grpcCustomersClient.getChannel());
-    
+        
         var req = Customers.CustomerRequest.newBuilder()
             .setCustomerId(customerId)
             .setAddressId(addressId)
             .build();
-    
+        
         stub.getCustomer(req, new StreamObserver<>() {
             @Override
             public void onNext(Customers.CustomerResponse customer) {
                 var addr = customer.getAddress();
-    
+                
                 em.getTransaction().begin();
                 OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
                 
@@ -290,18 +304,17 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.setCustomerPhone(addr.getPhoneNumber());
                 
                 em.getTransaction().commit();
-                // em.flush();
             }
-        
+            
             @Override
             public void onError(Throwable t) {
                 t.printStackTrace();
                 throw new RestException("Error retrieving customer data!");
             }
-    
+            
             @Override
             public void onCompleted() {
-        
+            
             }
         });
     }
@@ -311,19 +324,19 @@ public class OrderServiceImpl implements OrderService {
             throw new RestException("Cannot find the url for the products-service");
         }
         return RestClientBuilder.newBuilder()
-                .register(new ResponseExceptionMapper<NotFoundException>() {
-
-                    @Override
-                    public NotFoundException toThrowable(Response response) {
-                        return new NotFoundException("Shopping cart for given customer doesn't exist!");
-                    }
-
-                    @Override
-                    public boolean handles(int status, MultivaluedMap<String, Object> headers) {
-                        return status == 404;
-                    }
-                })
-                .baseUri(URI.create(shoppingCartBaseUrl.get())).build(ShoppingCartApi.class);
+            .register(new ResponseExceptionMapper<NotFoundException>() {
+                
+                @Override
+                public NotFoundException toThrowable(Response response) {
+                    return new NotFoundException("Shopping cart for given customer doesn't exist!");
+                }
+                
+                @Override
+                public boolean handles(int status, MultivaluedMap<String, Object> headers) {
+                    return status == 404;
+                }
+            })
+            .baseUri(URI.create(shoppingCartBaseUrl.get())).build(ShoppingCartApi.class);
     }
     
     private void createInvoice(Order order) {

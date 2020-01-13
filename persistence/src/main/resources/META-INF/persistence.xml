@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
-    <persistence-unit name="main-jpa-unit" transaction-type="JTA">
+    <persistence-unit name="main-jpa-unit" transaction-type="RESOURCE_LOCAL">
 
-        <jta-data-source>jdbc/mainDB</jta-data-source>
+        <non-jta-data-source>jdbc/mainDB</non-jta-data-source>
+<!--        <jta-data-source>jdbc/mainDB</jta-data-source>-->
 
         <class>si.rso.orders.persistence.OrderEntity</class>
         <class>si.rso.orders.persistence.OrderProductEntity</class>

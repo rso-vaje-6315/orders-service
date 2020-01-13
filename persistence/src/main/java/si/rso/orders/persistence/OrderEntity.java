@@ -42,7 +42,7 @@ public class OrderEntity extends BaseEntity {
     @Column(name = "customer_email")
     private String customerEmail;
     
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "order", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", fetch = FetchType.EAGER)
     private List<OrderProductEntity> products;
     
     public String getCustomerId() {

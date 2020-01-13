@@ -10,6 +10,6 @@ import javax.ws.rs.core.MediaType;
 public interface ShoppingCartApi {
 
     @GET
-    @Path("/shopping-cart/me")
+    @Path("/v1/shopping-cart/me")
     JsonArray getShoppingCartsForCustomer(@HeaderParam(HttpHeaders.AUTHORIZATION) String authToken);
 }

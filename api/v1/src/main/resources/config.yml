@@ -32,7 +32,7 @@ kumuluzee:
           <Loggers>
               <Root level="all">
                   <AppenderRef ref="console" level="info"/>
-                  <AppenderRef ref="logstash" level="trace"/>
+                  <AppenderRef ref="logstash" level="debug"/>
               </Root>
           </Loggers>
       </Configuration>'
@@ -60,7 +60,7 @@ kumuluzee:
       username: postgres
       password: postgres
       pool:
-        max-size: 20
+        max-size: 10
   metrics:
     web-instrumentation:
       - name: customers-endpoint

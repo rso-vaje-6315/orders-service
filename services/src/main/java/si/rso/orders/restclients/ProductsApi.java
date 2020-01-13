@@ -2,6 +2,7 @@ package si.rso.orders.restclients;
 
 import si.rso.products.lib.Product;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -14,6 +15,10 @@ public interface ProductsApi {
     @Path("/graphql")
     @Consumes("application/graphql")
     JsonObject productGraphql(String query);
+    
+    @GET
+    @Path("/v1/products")
+    JsonArray getProducts(@QueryParam("filter") String filter);
     
     @GET
     @Path("/v1/products/{productId}")

@@ -31,7 +31,6 @@ public class ConsulHealthCheck implements HealthCheck {
                 .invoke();
 
         if (response.getStatus() == 200) {
-            LOG.info("Consul healthcheck OK.");
             return HealthCheckResponse.named(ConsulHealthCheck.class.getSimpleName())
                     .up()
                     .withData(healthUrl, "UP")
