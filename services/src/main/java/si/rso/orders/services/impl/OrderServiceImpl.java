@@ -147,8 +147,6 @@ public class OrderServiceImpl implements OrderService {
         return OrderMapper.fromEntity(orderEntity);
     }
     
-    // TODO: remove annotation and define own transaction start
-    @Transactional
     @Override
     public void fulfillOrder(String orderId) {
         OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
@@ -170,23 +168,32 @@ public class OrderServiceImpl implements OrderService {
         var invoiceRequestBuilder = Invoice.InvoiceRequest.newBuilder()
             .setOrderId(orderId)
             .setCustomer(customerRequestBuilder);
-        orderEntity.getProducts().forEach(product -> {
-            var singleItemBuilder = Invoice.OrderItem.newBuilder();
-            singleItemBuilder.setCode(product.getCode());
-            singleItemBuilder.setName(product.getName());
-            singleItemBuilder.setPrice(product.getPricePerItem());
-            singleItemBuilder.setQuantity(product.getQuantity());
-            invoiceRequestBuilder.addItems(singleItemBuilder.build());
-        });
+        
+        invoiceRequestBuilder.addAllItems(
+            orderEntity.getProducts()
+                .stream()
+                .map(product -> {
+                    var singleItemBuilder = Invoice.OrderItem.newBuilder();
+                    singleItemBuilder.setCode(product.getCode());
+                    singleItemBuilder.setName(product.getName());
+                    singleItemBuilder.setPrice(product.getPricePerItem());
+                    singleItemBuilder.setQuantity(product.getQuantity());
+                    return singleItemBuilder.build();
+                })
+                .collect(Collectors.toList()));
         
         invoiceStub.createInvoice(invoiceRequestBuilder.build(), new StreamObserver<Invoice.InvoiceResponse>() {
             @Override
             public void onNext(Invoice.InvoiceResponse value) {
-                em.getTransaction().begin();
-                OrderEntity fulfilledOrder = em.find(OrderEntity.class, orderId);
-                fulfilledOrder.setStatus(OrderStatus.FULFILLED);
-                em.getTransaction().commit();
-                // em.flush();
+                try {
+                    em.getTransaction().begin();
+                    OrderEntity fulfilledOrder = em.find(OrderEntity.class, orderId);
+                    fulfilledOrder.setStatus(OrderStatus.FULFILLED);
+                    em.getTransaction().commit();
+                } catch (Exception e) {
+                    em.getTransaction().rollback();
+                }
+                
             }
             
             @Override
@@ -199,8 +206,6 @@ public class OrderServiceImpl implements OrderService {
             
             }
         });
-        
-        
     }
     
     private void handleOrderItems(OrderEntity orderEntity, String authToken) {
@@ -237,7 +242,7 @@ public class OrderServiceImpl implements OrderService {
                 
                 return productEntity;
             }).collect(Collectors.toList());
-    
+            
             productEntities.forEach(productEntity -> {
                 orderEntity.getProducts().add(productEntity);
                 productEntity.setOrder(orderEntity);
