@@ -246,7 +246,8 @@ public class OrderServiceImpl implements OrderService {
         StockApi stockApi = RestClientBuilder.newBuilder()
                 .baseUri(URI.create(stockBaseUrl.get()))
                 .build(StockApi.class);
-        Long stockNumber = stockApi.getNumberOfAllProducts(productId);
+        ShoppingCart temp = stockApi.getNumberOfAllProducts(productId);
+        int stockNumber = temp.getQuantity();
         if (quantity > stockNumber) {
             throw new RestException("Not enough stock for product" + productId + ". " +
                     quantity + " requested but only available " + stockNumber + ".");
