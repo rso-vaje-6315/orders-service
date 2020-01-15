@@ -78,10 +78,11 @@ kumuluzee:
   grpc:
     clients:
       - name: customers-client
-        port: 8444
+        port: 8443
         address: localhost
       - name: invoice-client
         port: 8443
         address: localhost
 service-config:
   maintenance: false
+  grpc-discovery: false

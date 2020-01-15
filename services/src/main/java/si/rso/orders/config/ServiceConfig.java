@@ -11,6 +11,9 @@ public class ServiceConfig {
 
     @ConfigValue("maintenance")
     private boolean maintenance;
+    
+    @ConfigValue("grpc-discovery")
+    private boolean grpcDiscovery;
 
     public boolean isMaintenance() {
         return maintenance;
@@ -18,5 +21,13 @@ public class ServiceConfig {
 
     public void setMaintenance(boolean maintenance) {
         this.maintenance = maintenance;
+    }
+    
+    public boolean isGrpcDiscovery() {
+        return grpcDiscovery;
+    }
+    
+    public void setGrpcDiscovery(boolean grpcDiscovery) {
+        this.grpcDiscovery = grpcDiscovery;
     }
 }
