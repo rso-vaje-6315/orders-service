@@ -58,6 +58,10 @@
             <groupId>com.kumuluz.ee.discovery</groupId>
             <artifactId>kumuluzee-discovery-consul</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.kumuluz.ee.streaming</groupId>
+            <artifactId>kumuluzee-streaming-kafka</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -88,6 +92,14 @@
         <dependency>
             <groupId>si.rso.products</groupId>
             <artifactId>products-service-lib-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.analytics</groupId>
+            <artifactId>analytics-service-lib-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>si.rso.event.streaming</groupId>
+            <artifactId>event-streaming-utils</artifactId>
         </dependency>
     </dependencies>
 
