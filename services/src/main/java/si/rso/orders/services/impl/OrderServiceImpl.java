@@ -17,7 +17,7 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import si.rso.cart.lib.ShoppingCart;
 import si.rso.orders.lib.Order;
-import si.rso.orders.lib.annotations.CreateGrpcClient;
+import si.rso.orders.lib.annotations.DiscoverGrpcClient;
 import si.rso.orders.lib.enums.OrderStatus;
 import si.rso.orders.mappers.OrderMapper;
 import si.rso.orders.persistence.OrderEntity;
@@ -37,7 +37,6 @@ import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -57,12 +56,12 @@ public class OrderServiceImpl implements OrderService {
     private EntityManager em;
     
     @Inject
-    @CreateGrpcClient(clientName = "customers-client")
-    private GrpcClient grpcCustomersClient;
+    @DiscoverGrpcClient(clientName = "customers-service")
+    private Optional<GrpcClient> grpcCustomersClient;
     
     @Inject
-    @CreateGrpcClient(clientName = "invoice-client")
-    private GrpcClient grpcInvoiceClient;
+    @DiscoverGrpcClient(clientName = "invoice-service")
+    private Optional<GrpcClient> grpcInvoiceClient;
     
     @Inject
     @DiscoverService("products-service")
@@ -154,7 +153,11 @@ public class OrderServiceImpl implements OrderService {
             throw new NotFoundException(OrderEntity.class, orderId);
         }
         
-        var invoiceStub = InvoiceServiceGrpc.newStub(grpcInvoiceClient.getChannel());
+        if (grpcInvoiceClient.isEmpty()) {
+            throw new RestException("Invoice service not discovered!");
+        }
+        
+        var invoiceStub = InvoiceServiceGrpc.newStub(grpcInvoiceClient.get().getChannel());
         
         var customerRequestBuilder = Invoice.Customer.newBuilder()
             .setCountry(orderEntity.getCustomerCountry())
@@ -182,7 +185,7 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .collect(Collectors.toList()));
         
-        invoiceStub.createInvoice(invoiceRequestBuilder.build(), new StreamObserver<Invoice.InvoiceResponse>() {
+        invoiceStub.createInvoice(invoiceRequestBuilder.build(), new StreamObserver<>() {
             @Override
             public void onNext(Invoice.InvoiceResponse value) {
                 try {
@@ -203,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
             
             @Override
             public void onCompleted() {
-            
+                LOG.info("gRPC call to invoice-service completed!");
             }
         });
     }
@@ -286,7 +289,12 @@ public class OrderServiceImpl implements OrderService {
     }
     
     private void handleCustomerData(String orderId, String customerId, String addressId) {
-        var stub = CustomersServiceGrpc.newStub(grpcCustomersClient.getChannel());
+        
+        if (grpcCustomersClient.isEmpty()) {
+            throw new RestException("Customers service not discovered!");
+        }
+        
+        var stub = CustomersServiceGrpc.newStub(grpcCustomersClient.get().getChannel());
         
         var req = Customers.CustomerRequest.newBuilder()
             .setCustomerId(customerId)
@@ -319,7 +327,7 @@ public class OrderServiceImpl implements OrderService {
             
             @Override
             public void onCompleted() {
-            
+                LOG.info("gRPC call to customers-service completed!");
             }
         });
     }
@@ -344,29 +352,4 @@ public class OrderServiceImpl implements OrderService {
             .baseUri(URI.create(shoppingCartBaseUrl.get())).build(ShoppingCartApi.class);
     }
     
-    private void createInvoice(Order order) {
-        var request = Invoice.InvoiceRequest.newBuilder()
-            .setOrderId("OrderID")
-            .build();
-        
-        LOG.info("Starting GRPC connection");
-        var invoiceServiceStub = InvoiceServiceGrpc.newStub(grpcInvoiceClient.getChannel());
-        invoiceServiceStub.createInvoice(request, new StreamObserver<Invoice.InvoiceResponse>() {
-            @Override
-            public void onNext(Invoice.InvoiceResponse invoiceResponse) {
-                LOG.info("Connection succeeded! Returned status: " + invoiceResponse.getStatus());
-                LOG.info("Generated invoice id: " + invoiceResponse.getInvoiceId());
-            }
-            
-            @Override
-            public void onError(Throwable throwable) {
-                throwable.printStackTrace();
-            }
-            
-            @Override
-            public void onCompleted() {
-                LOG.info("GRPC connection completed!");
-            }
-        });
-    }
 }
