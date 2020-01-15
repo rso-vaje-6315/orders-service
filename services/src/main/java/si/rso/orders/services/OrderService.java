@@ -14,9 +14,11 @@ public interface OrderService {
 
     List<Order> getOrders(QueryParameters queryParameters);
 
-    Order updateOrder(Order order);
+    Order cancelOrder(String orderId);
+
+    Order closeOrder(String orderId);
 
     Order createOrder(Order order, String authToken, String customerId) throws MalformedURLException;
-    
+
     void fulfillOrder(String orderId);
 }
