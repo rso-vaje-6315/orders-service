@@ -44,8 +44,10 @@ public class GrpcClientProducer {
             DiscoverGrpcClient annotation = injectionPoint.getAnnotated().getAnnotation(DiscoverGrpcClient.class);
             
             if (!serviceConfig.isGrpcDiscovery()) {
+                LOG.warn("Using hardcoded gRPC client values!");
                 GrpcChannels clientPool = GrpcChannels.getInstance();
                 GrpcChannelConfig channelConfig = clientPool.getGrpcClientConfig(annotation.clientName());
+                LOG.info("Connecting to gRPC client {} on address {}", channelConfig.getName(), channelConfig.getAddress() + ":" + channelConfig.getPort());
                 return Optional.of(new GrpcClient(channelConfig));
             }
             
