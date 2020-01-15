@@ -83,6 +83,12 @@ kumuluzee:
       - name: invoice-service
         port: 8443
         address: localhost
+  streaming:
+    kafka:
+      producer:
+        bootstrap-servers: localhost:9092
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: si.rso.event.streaming.serialization.EventStreamMessageSerializer
 service-config:
   maintenance: false
   grpc-discovery: false

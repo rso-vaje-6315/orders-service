@@ -28,6 +28,7 @@
         <kumuluzee-metrics.version>2.0.1</kumuluzee-metrics.version>
         <kumuluzee-config-consul.version>1.2.0</kumuluzee-config-consul.version>
         <kumuluzee-discovery-consul.version>1.1.1</kumuluzee-discovery-consul.version>
+        <kumuluzee-streaming.version>1.2.0</kumuluzee-streaming.version>
 
         <jackson.version>2.9.10.1</jackson.version>
         <postgres.version>42.2.7</postgres.version>
@@ -35,6 +36,7 @@
 
         <rso-rest.version>1.3.0-SNAPSHOT</rso-rest.version>
         <rso-snapshots>1.0.0-SNAPSHOT</rso-snapshots>
+        <rso-event-streaming.version>1.0.0</rso-event-streaming.version>
     </properties>
 
     <dependencyManagement>
@@ -128,6 +130,11 @@
                 <artifactId>kumuluzee-discovery-consul</artifactId>
                 <version>${kumuluzee-discovery-consul.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.streaming</groupId>
+                <artifactId>kumuluzee-streaming-kafka</artifactId>
+                <version>${kumuluzee-streaming.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -169,6 +176,16 @@
                 <groupId>si.rso.products</groupId>
                 <artifactId>products-service-lib-v1</artifactId>
                 <version>${rso-snapshots}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.rso.analytics</groupId>
+                <artifactId>analytics-service-lib-v1</artifactId>
+                <version>${rso-snapshots}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.rso.event.streaming</groupId>
+                <artifactId>event-streaming-utils</artifactId>
+                <version>${rso-event-streaming.version}</version>
             </dependency>
         </dependencies>
 

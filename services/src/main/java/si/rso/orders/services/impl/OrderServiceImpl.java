@@ -22,6 +22,7 @@ import si.rso.orders.lib.enums.OrderStatus;
 import si.rso.orders.mappers.OrderMapper;
 import si.rso.orders.persistence.OrderEntity;
 import si.rso.orders.persistence.OrderProductEntity;
+import si.rso.orders.producers.KafkaProducer;
 import si.rso.orders.restclients.ProductsApi;
 import si.rso.orders.restclients.ShoppingCartApi;
 import si.rso.orders.services.OrderService;
@@ -51,26 +52,29 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     
     private Logger LOG = LogManager.getLogger(OrderService.class.getSimpleName());
-    
+
     @PersistenceContext(unitName = "main-jpa-unit")
     private EntityManager em;
-    
+
     @Inject
     @DiscoverGrpcClient(clientName = "customers-service")
     private Optional<GrpcClient> grpcCustomersClient;
-    
+
     @Inject
     @DiscoverGrpcClient(clientName = "invoice-service")
     private Optional<GrpcClient> grpcInvoiceClient;
-    
+
+    @Inject
+    private KafkaProducer kafkaProducer;
+
     @Inject
     @DiscoverService("products-service")
     private Optional<String> productsBaseUrl;
-    
+
     @Inject
     @DiscoverService("shopping-cart-service")
     private Optional<String> shoppingCartBaseUrl;
-    
+
     @Inject
     private Validator validator;
     
@@ -147,14 +151,19 @@ public class OrderServiceImpl implements OrderService {
             this.handleOrderItems(orderEntity, authToken);
             em.merge(orderEntity);
             em.getTransaction().commit();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             em.getTransaction().rollback();
         }
-        
+
         this.handleCustomerData(orderEntity.getId(), customerId, order.getAddressId());
-        
+
+        // TODO A je uredu mesto kjer se zgodi posiljanje obvestila na analytics?
+        for (OrderProductEntity orderProductEntity : orderEntity.getProducts()) {
+            kafkaProducer.sendToAnalytics(orderProductEntity);
+        }
+
         return OrderMapper.fromEntity(orderEntity);
     }
     
