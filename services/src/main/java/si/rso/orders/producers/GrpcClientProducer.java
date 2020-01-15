@@ -48,7 +48,7 @@ public class GrpcClientProducer {
                 GrpcChannels clientPool = GrpcChannels.getInstance();
                 GrpcChannelConfig channelConfig = clientPool.getGrpcClientConfig(annotation.clientName());
                 LOG.info("Connecting to gRPC client {}...", annotation.clientName());
-                LOG.info("Connected to gRPC client {} on address {}!", channelConfig.getName(), channelConfig.getAddress() + ":" + channelConfig.getPort());
+                // LOG.info("Connected to gRPC client {} on address {}!", annotation.clientName(), channelConfig.getAddress() + ":" + channelConfig.getPort());
                 return Optional.of(new GrpcClient(channelConfig));
             }
             

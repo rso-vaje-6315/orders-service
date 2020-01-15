@@ -77,10 +77,10 @@ kumuluzee:
              }'
   grpc:
     clients:
-      - name: customers-client
+      - name: customers-service
         port: 8443
         address: localhost
-      - name: invoice-client
+      - name: invoice-service
         port: 8443
         address: localhost
 service-config:
