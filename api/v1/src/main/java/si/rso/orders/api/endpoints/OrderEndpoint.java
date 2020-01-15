@@ -123,17 +123,41 @@ public class OrderEndpoint {
     }
 
     @PUT
-    @Counted(name = "update-order-count")
-    @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
-    @Operation(description = "Updates an order.",
-            summary = "Updates an orders.", tags = "orders",
+    @Path("/cancel/{orderId}")
+    @Counted(name = "cancel-order-count")
+    @RolesAllowed({AuthRole.CUSTOMER})
+    @Operation(description = "Cancels an order.",
+            summary = "Cancels an orders.", tags = "orders",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Updates an order.",
+                    @ApiResponse(responseCode = "200", description = "Cancels an order.",
                             content = @Content(schema = @Schema(implementation = Order.class)))
             })
-    public Response updateOrder(Order order) {
-        return Response.ok().build();
+    public Response cancelOrder(@PathParam("orderId") String orderId) {
+        try {
+            Order updatedOrder = orderService.cancelOrder(orderId);
+            return Response.ok(updatedOrder).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
+    }
 
+    @PUT
+    @Path("/close/{orderId}")
+    @Counted(name = "close-order-count")
+    @RolesAllowed({AuthRole.CUSTOMER})
+    @Operation(description = "Closes an order.",
+            summary = "Closes an orders.", tags = "orders",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Closes an order.",
+                            content = @Content(schema = @Schema(implementation = Order.class)))
+            })
+    public Response closeOrder(@PathParam("orderId") String orderId) {
+        try {
+            Order updatedOrder = orderService.closeOrder(orderId);
+            return Response.ok(updatedOrder).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e).build();
+        }
     }
 
     @POST

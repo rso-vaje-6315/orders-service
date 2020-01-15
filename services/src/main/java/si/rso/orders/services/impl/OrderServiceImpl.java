@@ -99,25 +99,37 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getOrders(QueryParameters queryParameters) {
         return JPAUtils.queryEntities(em, OrderEntity.class, queryParameters).stream()
-            .map(OrderMapper::fromEntity)
-            .collect(Collectors.toList());
+                .map(OrderMapper::fromEntity)
+                .collect(Collectors.toList());
     }
-    
+
     @CircuitBreaker
     @Timeout
     @Override
-    public Order updateOrder(Order order) {
-        // TODO
-        return null;
+    public Order cancelOrder(String orderId) {
+        OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
+        orderEntity.setStatus(OrderStatus.CANCELLED);
+        OrderEntity updated = em.merge(orderEntity);
+        return OrderMapper.fromEntity(updated);
     }
-    
+
+    @CircuitBreaker
+    @Timeout
+    @Override
+    public Order closeOrder(String orderId) {
+        OrderEntity orderEntity = em.find(OrderEntity.class, orderId);
+        orderEntity.setStatus(OrderStatus.CLOSED);
+        OrderEntity updated = em.merge(orderEntity);
+        return OrderMapper.fromEntity(updated);
+    }
+
     // @CircuitBreaker
     // @Timeout
     @Override
     public Order createOrder(Order order, String authToken, String customerId) {
-        
+
         validator.assertNotNull(order.getAddressId());
-        
+
         // Initial create for order
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setCustomerId(customerId);
