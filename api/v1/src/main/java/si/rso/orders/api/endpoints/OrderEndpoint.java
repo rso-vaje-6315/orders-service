@@ -17,6 +17,7 @@ import si.rso.orders.api.config.AuthRole;
 import si.rso.orders.lib.Order;
 import si.rso.orders.services.OrderService;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -86,7 +87,7 @@ public class OrderEndpoint {
 
     @GET
     @Path("/{orderId}")
-    @RolesAllowed({AuthRole.ADMIN, AuthRole.SELLER})
+    @PermitAll
     @Operation(description = "Retrieves order by orderId.",
             summary = "Returns an order.", tags = "orders",
             responses = {
