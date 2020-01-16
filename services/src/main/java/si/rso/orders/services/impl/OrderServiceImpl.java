@@ -404,6 +404,7 @@ public class OrderServiceImpl implements OrderService {
         if (shoppingCartBaseUrl.isEmpty()) {
             throw new RestException("Cannot find the url for the products-service");
         }
+        LOG.info("Creating rest client for uri {}", shoppingCartBaseUrl.get());
         return RestClientBuilder.newBuilder()
             .register(new ResponseExceptionMapper<NotFoundException>() {
                 
