@@ -9,6 +9,7 @@ dist: trusty
 branches:
   only:
     - develop
+    - master
 
 jdk:
   - openjdk11
@@ -16,6 +17,17 @@ jdk:
 cache:
   directories:
     - "$HOME/.m2"
+    - "$HOME/google-cloud-sdk/"
+
+env:
+  global:
+    - GOOGLE_APPLICATION_CREDENTIALS=~/gcloud-service-key.json
+    - PROJECT_NAME=local-reference-258619
+    - CLUSTER_NAME=third-cluster
+    - CLOUDSDK_COMPUTE_ZONE=europe-west3-b
+    - DOCKER_IMAGE_NAME=rso6315/orders-service
+    - KUBE_DEPLOYMENT_NAME=orders-app-deployment
+    - KUBE_DEPLOYMENT_CONTAINER=orders-app-container
 
 install: echo "Skipping installation"
 
@@ -27,6 +39,20 @@ after_success:
   - mvn deploy -DskipTests=true --settings .ci/settings.xml -P !default,deploy-lib
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push rso6315/orders-service
+
+before_deploy:
+  - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+  - source /home/travis/google-cloud-sdk/path.bash.inc
+  - gcloud --quiet version
+  - gcloud --quiet components update
+  - gcloud --quiet components update kubectl
+
+deploy:
+  - provider: script
+    script: bash ./.ci/deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master
 
 notifications:
   email: false

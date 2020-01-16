@@ -25,6 +25,7 @@ import si.rso.orders.persistence.OrderProductEntity;
 import si.rso.orders.producers.KafkaProducer;
 import si.rso.orders.restclients.ProductsApi;
 import si.rso.orders.restclients.ShoppingCartApi;
+import si.rso.orders.restclients.StockApi;
 import si.rso.orders.services.OrderService;
 import si.rso.products.lib.Product;
 import si.rso.rest.exceptions.NotFoundException;
@@ -76,8 +77,12 @@ public class OrderServiceImpl implements OrderService {
     private Optional<String> shoppingCartBaseUrl;
 
     @Inject
+    @DiscoverService("stock-service")
+    private Optional<String> stockBaseUrl;
+
+    @Inject
     private Validator validator;
-    
+
     @CircuitBreaker
     @Timeout
     @Override
@@ -159,6 +164,7 @@ public class OrderServiceImpl implements OrderService {
 
         this.handleCustomerData(orderEntity.getId(), customerId, order.getAddressId());
 
+        // posli na analytics
         // TODO A je uredu mesto kjer se zgodi posiljanje obvestila na analytics?
         for (OrderProductEntity orderProductEntity : orderEntity.getProducts()) {
             kafkaProducer.sendToAnalytics(orderProductEntity);
@@ -224,20 +230,41 @@ public class OrderServiceImpl implements OrderService {
             public void onError(Throwable t) {
                 t.printStackTrace();
             }
-            
+
             @Override
             public void onCompleted() {
                 LOG.info("gRPC call to invoice-service completed!");
             }
         });
     }
-    
+
+    private void checkIfEnoughStock(String productId, int quantity) {
+        if (stockBaseUrl.isEmpty()) {
+            throw new RestException("Cannot find the url for the stock-service");
+        }
+        // preveri in popravi quantity glede na stock
+        StockApi stockApi = RestClientBuilder.newBuilder()
+                .baseUri(URI.create(stockBaseUrl.get()))
+                .build(StockApi.class);
+        ShoppingCart temp = stockApi.getNumberOfAllProducts(productId);
+        int stockNumber = temp.getQuantity();
+        if (quantity > stockNumber) {
+            throw new RestException("Not enough stock for product" + productId + ". " +
+                    quantity + " requested but only available " + stockNumber + ".");
+        }
+    }
+
     private void handleOrderItems(OrderEntity orderEntity, String authToken) {
         try {
             // retrieve shopping cart for user
             ShoppingCartApi shoppingCartApi = buildShoppingCartApi();
             JsonArray shoppingCartResponse = shoppingCartApi.getShoppingCartsForCustomer("Bearer " + authToken);
             List<ShoppingCart> cartItems = mapJsonResponseToCart(shoppingCartResponse);
+            // check stock
+            for (ShoppingCart cartItem : cartItems) {
+                // TODO dalo bi se zoptimizirat, da ne pošlje cartItems zahtevkov ampak enega vecjega
+                checkIfEnoughStock(cartItem.getProductId(), cartItem.getQuantity());
+            }
             // Build id list to retrieve
             String idList = cartItems.stream().map(ShoppingCart::getProductId).collect(Collectors.joining(","));
             // retrieve product data
@@ -245,8 +272,8 @@ public class OrderServiceImpl implements OrderService {
                 throw new RestException("Cannot find the url for the products-service");
             }
             ProductsApi productsApi = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(productsBaseUrl.get()))
-                .build(ProductsApi.class);
+                    .baseUri(URI.create(productsBaseUrl.get()))
+                    .build(ProductsApi.class);
             String filterQuery = "id:IN:[" + idList + "]";
             JsonArray productsArray = productsApi.getProducts(filterQuery);
             List<Product> products = mapJsonResponseToProduct(productsArray);
