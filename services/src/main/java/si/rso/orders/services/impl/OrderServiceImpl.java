@@ -257,7 +257,9 @@ public class OrderServiceImpl implements OrderService {
     private void handleOrderItems(OrderEntity orderEntity, String authToken) {
         try {
             // retrieve shopping cart for user
+            LOG.info("Building shopping cart rest client...");
             ShoppingCartApi shoppingCartApi = buildShoppingCartApi();
+            LOG.info("Calling shopping cart rest client...");
             JsonArray shoppingCartResponse = shoppingCartApi.getShoppingCartsForCustomer("Bearer " + authToken);
             List<ShoppingCart> cartItems = mapJsonResponseToCart(shoppingCartResponse);
             // check stock
@@ -271,10 +273,12 @@ public class OrderServiceImpl implements OrderService {
             if (productsBaseUrl.isEmpty()) {
                 throw new RestException("Cannot find the url for the products-service");
             }
+            LOG.info("Building product rest client...");
             ProductsApi productsApi = RestClientBuilder.newBuilder()
                     .baseUri(URI.create(productsBaseUrl.get()))
                     .build(ProductsApi.class);
             String filterQuery = "id:IN:[" + idList + "]";
+            LOG.info("Calling product rest client...");
             JsonArray productsArray = productsApi.getProducts(filterQuery);
             List<Product> products = mapJsonResponseToProduct(productsArray);
             Map<String, Product> productLookup = products.stream().collect(Collectors.toMap(Product::getId, product -> product));
@@ -298,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getProducts().add(productEntity);
                 productEntity.setOrder(orderEntity);
             });
-            
+            LOG.info("Finished processing order items...");
         } catch (NotFoundException e) {
             e.printStackTrace();
             throw new RestException("Error creating order! Cart not found");

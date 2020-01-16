@@ -12,6 +12,6 @@ import javax.ws.rs.core.MediaType;
 public interface StockApi {
 
     @GET
-    @Path("/allstock/{productId}")
+    @Path("/v1/allstock/{productId}")
     ShoppingCart getNumberOfAllProducts(@PathParam("productId") String productId);
 }
