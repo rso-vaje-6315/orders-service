@@ -302,6 +302,10 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getProducts().add(productEntity);
                 productEntity.setOrder(orderEntity);
             });
+            double totalPrice = productEntities.stream()
+                .mapToDouble(item -> item.getQuantity() * item.getPricePerItem())
+                .reduce(0.0, Double::sum);
+            orderEntity.setTotalPrice(totalPrice);
             LOG.info("Finished processing order items...");
         } catch (NotFoundException e) {
             e.printStackTrace();
