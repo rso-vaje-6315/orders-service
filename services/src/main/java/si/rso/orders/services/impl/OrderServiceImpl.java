@@ -16,6 +16,7 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import si.rso.cart.lib.ShoppingCart;
+import si.rso.orders.config.ServiceConfig;
 import si.rso.orders.lib.Order;
 import si.rso.orders.lib.annotations.DiscoverGrpcClient;
 import si.rso.orders.lib.enums.OrderStatus;
@@ -82,6 +83,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Inject
     private Validator validator;
+    
+    @Inject
+    private ServiceConfig serviceConfig;
 
     @CircuitBreaker
     @Timeout
@@ -244,7 +248,7 @@ public class OrderServiceImpl implements OrderService {
         }
         // preveri in popravi quantity glede na stock
         StockApi stockApi = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(stockBaseUrl.get()))
+                .baseUri(URI.create(serviceConfig.getStockUrl()))
                 .build(StockApi.class);
         
         try {
@@ -276,7 +280,7 @@ public class OrderServiceImpl implements OrderService {
             List<ShoppingCart> cartItems = mapJsonResponseToCart(shoppingCartResponse);
             // check stock
             for (ShoppingCart cartItem : cartItems) {
-                // TODO dalo bi se zoptimizirat, da ne pošlje cartItems zahtevkov ampak enega vecjega
+                // TODO dalo bi se zoptimizirat, da ne poslje cartItems zahtevkov ampak enega vecjega
                 checkIfEnoughStock(cartItem.getProductId(), cartItem.getQuantity());
             }
             // Build id list to retrieve
@@ -287,7 +291,7 @@ public class OrderServiceImpl implements OrderService {
             }
             LOG.info("Building product rest client...");
             ProductsApi productsApi = RestClientBuilder.newBuilder()
-                    .baseUri(URI.create(productsBaseUrl.get()))
+                    .baseUri(URI.create(serviceConfig.getProductsUrl()))
                     .build(ProductsApi.class);
             String filterQuery = "id:IN:[" + idList + "]";
             LOG.info("Calling product rest client...");
@@ -418,7 +422,7 @@ public class OrderServiceImpl implements OrderService {
                     return status == 404;
                 }
             })
-            .baseUri(URI.create(shoppingCartBaseUrl.get())).build(ShoppingCartApi.class);
+            .baseUri(URI.create(serviceConfig.getShoppingCartUrl())).build(ShoppingCartApi.class);
     }
     
 }

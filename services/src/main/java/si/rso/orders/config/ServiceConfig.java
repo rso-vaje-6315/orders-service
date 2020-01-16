@@ -14,6 +14,15 @@ public class ServiceConfig {
     
     @ConfigValue("grpc-discovery")
     private boolean grpcDiscovery;
+    
+    @ConfigValue("shopping-cart-url")
+    private String shoppingCartUrl;
+    
+    @ConfigValue("products-url")
+    private String productsUrl;
+    
+    @ConfigValue("stock-url")
+    private String stockUrl;
 
     public boolean isMaintenance() {
         return maintenance;
@@ -29,5 +38,29 @@ public class ServiceConfig {
     
     public void setGrpcDiscovery(boolean grpcDiscovery) {
         this.grpcDiscovery = grpcDiscovery;
+    }
+    
+    public String getShoppingCartUrl() {
+        return shoppingCartUrl;
+    }
+    
+    public void setShoppingCartUrl(String shoppingCartUrl) {
+        this.shoppingCartUrl = shoppingCartUrl;
+    }
+    
+    public String getProductsUrl() {
+        return productsUrl;
+    }
+    
+    public void setProductsUrl(String productsUrl) {
+        this.productsUrl = productsUrl;
+    }
+    
+    public String getStockUrl() {
+        return stockUrl;
+    }
+    
+    public void setStockUrl(String stockUrl) {
+        this.stockUrl = stockUrl;
     }
 }
